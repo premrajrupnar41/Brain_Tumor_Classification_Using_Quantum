@@ -1,0 +1,35 @@
+.cml-container {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+  background: #fff5f7;
+  border-radius: 12px;
+}
+
+.image-box img {
+  width: 250px;
+  height: 250px;
+  object-fit: contain;
+  margin: 15px 0;
+  border-radius: 10px;
+}
+
+.btn-group button {
+  margin: 10px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-group .clear {
+  background-color: #ffb3c1;
+}
+
+.result-box {
+  margin-top: 15px;
+  background: #ffe0e9;
+  padding: 10px;
+  border-radius: 8px;
+}
