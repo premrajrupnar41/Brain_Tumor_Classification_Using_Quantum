@@ -31,13 +31,21 @@ function CML() {
 
     setLoading(true);
 
-    const response = await fetch("http://127.0.0.1:8000/predict", {
+    const response = await fetch("http://127.0.0.1:8001/predict-cnn", {
       method: "POST",
       body: formData,
     });
-
-    const data = await response.json();
-    setResult(data);
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = { error: 'Invalid JSON response from server' };
+    }
+    if (!response.ok) {
+      setResult({ error: data.error || 'Server returned an error' });
+    } else {
+      setResult(data);
+    }
     setLoading(false);
   };
 
@@ -66,7 +74,14 @@ function CML() {
 
       {loading && <p>Analyzing MRI...</p>}
 
-      {result && (
+      {result && result.error && (
+        <div className="result-box error">
+          <h2>Error</h2>
+          <p>{result.error}</p>
+        </div>
+      )}
+
+      {result && !result.error && (
         <div className="result-box">
           <h2> Tumor Type: {result.tumor_type}</h2>
           <p>Confidence: {result.confidence}%</p>

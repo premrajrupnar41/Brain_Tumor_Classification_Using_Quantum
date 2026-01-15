@@ -8,10 +8,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/cml" element={<Login />} />
+        <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/qml" element={<QML />} />
-        <Route path="/" element={<CML />} />
+        <Route path="/cml" element={<CML />} />
       </Routes>
     </BrowserRouter>
   );

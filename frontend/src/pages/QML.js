@@ -3,55 +3,89 @@ import "./QML.css";
 
 function QML() {
   const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(URL.createObjectURL(file));
-    }
+  const handleImage = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    if (preview) URL.revokeObjectURL(preview);
+
+    setImage(file);
+    setPreview(URL.createObjectURL(file));
+    setResult(null);
   };
 
-  const clearImage = () => {
+  const predictQuantum = async () => {
+    if (!image) {
+      alert("Please upload MRI image");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", image);
+
+    setLoading(true);
+
+    const response = await fetch("http://127.0.0.1:8001/predict-qml", {
+      method: "POST",
+      body: formData,
+    });
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = { error: 'Invalid JSON response from server' };
+    }
+    if (!response.ok) {
+      setResult({ error: data.error || 'Server returned an error' });
+    } else {
+      setResult(data);
+    }
+    setLoading(false);
+  };
+
+  const clearAll = () => {
+    if (preview) URL.revokeObjectURL(preview);
     setImage(null);
+    setPreview(null);
+    setResult(null);
   };
 
   return (
     <div className="qml-container">
-      <div className="qml-card">
-        <h1>Quantum ML Disease Classification</h1>
-        <p className="subtitle">
-          AI-powered medical diagnosis using Quantum Machine Learning
-        </p>
+      <h1>Brain Tumor Classification (Quantum ML)</h1>
 
-        {/* Upload / Change Image */}
-        <label className="upload-box">
-          {image ? "Change Image" : "Upload Medical Image"}
-          <input type="file" accept="image/*" hidden onChange={handleImageUpload} />
-        </label>
+      <input type="file" accept="image/*" onChange={handleImage} />
 
-        {/* Image Preview */}
-        {image && (
-          <>
-            <div className="image-preview">
-              <img src={image} alt="Preview" />
-            </div>
+      {preview && (
+        <div className="image-box">
+          <img src={preview} alt="MRI" />
+        </div>
+      )}
 
-            {/* Clear Image Button */}
-            <button className="clear-btn" onClick={clearImage}>
-              Clear Image
-            </button>
-          </>
-        )}
-
-        {/* Analyze Button */}
-        <button className="classify-btn">
-          Analyze Disease
-        </button>
-
-        <p className="footer-text">
-          Secure • Fast • Research-Driven
-        </p>
+      <div className="btn-group">
+        <button onClick={predictQuantum}>Predict (QML)</button>
+        <button className="clear" onClick={clearAll}>Clear</button>
       </div>
+
+      {loading && <p>Running Quantum Inference...</p>}
+
+      {result && result.error && (
+        <div className="result-box error">
+          <h2>Error</h2>
+          <p>{result.error}</p>
+        </div>
+      )}
+
+      {result && !result.error && (
+        <div className="result-box">
+          <h2>Tumor Type: {result.tumor_type}</h2>
+          <p>Confidence: {result.confidence}%</p>
+        </div>
+      )}
     </div>
   );
 }
